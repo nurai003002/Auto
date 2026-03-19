@@ -37,7 +37,6 @@ def index(request):
             return 'soon', 'Скоро'
         return 'ok', 'В норме'
 
-    # Cars with computed repair info
     cars_data = []
     for car in cars:
         car_fixes = fixes_by_car.get(car.id, [])
@@ -114,8 +113,6 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-# ── Cars API ──────────────────────────────────────────────────
-
 def car_to_dict(car):
     return {
         'id': car.id,
@@ -172,8 +169,6 @@ def cars_detail(request, pk):
     return JsonResponse({}, status=204)
 
 
-# ── Repairs API ───────────────────────────────────────────────
-
 def fix_to_dict(fix):
     return {
         'id': fix.id,
@@ -224,9 +219,6 @@ def repairs_detail(request, pk):
     fix.delete()
     return JsonResponse({}, status=204)
 
-
-# ── Export helpers ────────────────────────────────────────────
-
 def _get_report_data(report_type):
     today = date.today()
 
@@ -251,7 +243,7 @@ def _get_report_data(report_type):
             ])
         return headers, rows
 
-    # upcoming
+    
     headers = ['Автомобиль', 'Гос. номер', 'Тип ремонта', 'Дата следующего ремонта', 'Статус']
     rows = []
     for f in Fix.objects.select_related('car').exclude(next_date=None).order_by('next_date'):
