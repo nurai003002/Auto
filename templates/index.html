@@ -1,0 +1,712 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoTrack — Учёт автомобилей</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+
+  <!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/>
+            <rect x="9" y="11" width="14" height="10" rx="2"/>
+            <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          </svg>
+        </div>
+        <span class="logo-text">AutoTrack</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-page="dashboard" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </span>
+        <span class="nav-text">Панель</span>
+        <span class="nav-badge" id="nav-badge-dashboard" style="display:none">0</span>
+      </a>
+      <a class="nav-item" data-page="cars" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/>
+            <rect x="9" y="11" width="14" height="10" rx="2"/>
+            <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          </svg>
+        </span>
+        <span class="nav-text">Автомобили</span>
+        <span class="nav-badge" id="nav-badge-cars">{{ total_cars }}</span>
+      </a>
+      <a class="nav-item" data-page="repairs" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </span>
+        <span class="nav-text">Ремонты</span>
+      </a>
+      <a class="nav-item" data-page="reminders" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+        </span>
+        <span class="nav-text">Напоминания</span>
+        <span class="nav-badge alert" id="nav-badge-reminders">{{ alert_count }}</span>
+      </a>
+      <a class="nav-item" data-page="reports" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </span>
+        <span class="nav-text">Отчёты</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-info">
+        <span>AutoTrack v1.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════ OVERLAY ════════════════════════ -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ════════════════════════ MAIN ════════════════════════ -->
+  <div class="main-wrapper">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle" title="Меню">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="breadcrumb">
+          <span class="breadcrumb-root">AutoTrack</span>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="pageTitle">Панель управления</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" id="notifBtn" onclick="App.navigate('reminders')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="notif-badge" id="topNotifBadge">{{ alert_count }}</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ══════════ PAGES CONTAINER ══════════ -->
+    <div class="pages">
+
+      <!-- ─── DASHBOARD ─── -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h1 class="page-h1">Панель управления</h1>
+          <p class="page-subtitle" id="dashDate"></p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card" data-color="blue">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/>
+                <rect x="9" y="11" width="14" height="10" rx="2"/>
+                <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-total">{{ total_cars }}</div>
+              <div class="stat-label">Всего автомобилей</div>
+            </div>
+          </div>
+          <div class="stat-card" data-color="amber">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-soon">{{ soon_count }}</div>
+              <div class="stat-label">Требуют внимания</div>
+            </div>
+          </div>
+          <div class="stat-card" data-color="red">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-overdue">{{ overdue_count }}</div>
+              <div class="stat-label">Просрочено</div>
+            </div>
+          </div>
+          <div class="stat-card" data-color="green">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-repairs">{{ total_fixes }}</div>
+              <div class="stat-label">Всего ремонтов</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <!-- Reminders widget -->
+          <div class="widget">
+            <div class="widget-header">
+              <h2 class="widget-title">Ближайшие напоминания</h2>
+              <button class="btn btn-ghost btn-sm" onclick="App.navigate('reminders')">Все →</button>
+            </div>
+            <div class="widget-body" id="dashReminders">
+              {% if reminders %}
+                <div class="compact-list">
+                  {% for r in reminders|slice:":5" %}
+                    <div class="compact-item" onclick="App.navigate('reminders')">
+                      <div class="compact-item-icon reminder-icon-{{ r.status }}">🔔</div>
+                      <div class="compact-item-body">
+                        <div class="compact-item-title">{{ r.car }} — {{ r.type }}</div>
+                        <div class="compact-item-sub">{{ r.label }}</div>
+                      </div>
+                      {% if r.status == 'overdue' %}
+                        <span class="status-badge overdue">{{ r.date|date:"d.m.Y" }}</span>
+                      {% elif r.status == 'this_month' %}
+                        <span class="status-badge soon">{{ r.date|date:"d.m.Y" }}</span>
+                      {% else %}
+                        <span class="status-badge ok">{{ r.date|date:"d.m.Y" }}</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state small">Нет предстоящих событий 🎉</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Recent cars widget -->
+          <div class="widget">
+            <div class="widget-header">
+              <h2 class="widget-title">Последние автомобили</h2>
+              <button class="btn btn-ghost btn-sm" onclick="App.navigate('cars')">Все →</button>
+            </div>
+            <div class="widget-body" id="dashCars">
+              {% if recent_cars_data %}
+                <div class="compact-list">
+                  {% for item in recent_cars_data %}
+                    <div class="compact-item" data-car-id="{{ item.car.id }}" onclick="App.openDetailModal(+this.dataset.carId)">
+                      <div class="compact-item-icon" style="background:var(--blue-light);color:var(--blue)">🚗</div>
+                      <div class="compact-item-body">
+                        <div class="compact-item-title">{{ item.car.marka }} {{ item.car.model }}</div>
+                        <div class="compact-item-sub">{{ item.car.gos_munber }} · {{ item.car.year }} г.</div>
+                      </div>
+                      <span class="status-badge {{ item.status }}">{{ item.status_label }}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state small">Автомобили не добавлены</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── CARS ─── -->
+      <section class="page" id="page-cars">
+        <div class="page-header">
+          <h1 class="page-h1">Автомобили</h1>
+          <button class="btn btn-primary" onclick="App.openCarModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="search-input" id="carsSearch" placeholder="Поиск по марке, модели, номеру…" oninput="App.filterCars()"/>
+          </div>
+          <div class="filter-tabs" id="carsFilter">
+            <button class="filter-tab active" data-filter="all" onclick="App.setCarFilter('all',this)">Все</button>
+            <button class="filter-tab" data-filter="attention" onclick="App.setCarFilter('attention',this)">Требуют внимания</button>
+            <button class="filter-tab" data-filter="ok" onclick="App.setCarFilter('ok',this)">В норме</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="carsTable">
+            <thead>
+              <tr>
+                <th>Марка / Модель</th>
+                <th>Гос. номер</th>
+                <th>Год</th>
+                <th>Последний ремонт</th>
+                <th>Следующий ремонт</th>
+                <th>Статус</th>
+                <th class="col-actions">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="carsTbody">
+              {% for item in cars_data %}
+                <tr data-car-id="{{ item.car.id }}"
+                    data-brand="{{ item.car.marka }}"
+                    data-model="{{ item.car.model }}"
+                    data-plate="{{ item.car.gos_munber }}"
+                    data-status="{{ item.status }}">
+                  <td>
+                    <div class="car-name-cell">
+                      <span class="car-name">{{ item.car.marka }} {{ item.car.model }}</span>
+                      {% if item.car.note %}<span class="car-sub">{{ item.car.note }}</span>{% endif %}
+                    </div>
+                  </td>
+                  <td class="font-mono">{{ item.car.gos_munber }}</td>
+                  <td>{{ item.car.year }}</td>
+                  <td>
+                    {% if item.last_fix %}
+                      <span>{{ item.last_fix.date|date:"d.m.Y" }}</span><br>
+                      <small class="text-muted text-sm">{{ item.last_fix.repair_type }}</small>
+                    {% else %}—{% endif %}
+                  </td>
+                  <td>
+                    {% if item.next_fix %}
+                      <strong>{{ item.next_fix.next_date|date:"d.m.Y" }}</strong><br>
+                      <small class="text-muted text-sm">{{ item.next_fix.repair_type }}</small>
+                    {% else %}—{% endif %}
+                  </td>
+                  <td><span class="status-badge {{ item.status }}">{{ item.status_label }}</span></td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="icon-btn view" title="Просмотр" data-id="{{ item.car.id }}" onclick="App.openDetailModal(+this.dataset.id)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                      <button class="icon-btn edit" title="Редактировать" data-id="{{ item.car.id }}" onclick="App.openCarModal(+this.dataset.id)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="icon-btn del" title="Удалить" data-id="{{ item.car.id }}" onclick="App.confirmDeleteCar(+this.dataset.id)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr class="empty-row"><td colspan="7"><div class="empty-state">Автомобили не найдены</div></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── REPAIRS ─── -->
+      <section class="page" id="page-repairs">
+        <div class="page-header">
+          <h1 class="page-h1">История ремонтов</h1>
+          <button class="btn btn-primary" onclick="App.openRepairModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить ремонт
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="search-input" id="repairsSearch" placeholder="Поиск по типу, автомобилю…" oninput="App.filterRepairs()"/>
+          </div>
+          <select class="select-filter" id="repairsCarFilter" onchange="App.filterRepairs()">
+            <option value="">Все автомобили</option>
+            {% for car in cars %}
+              <option value="{{ car.id }}">{{ car.marka }} {{ car.model }} ({{ car.gos_munber }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="repairsTable">
+            <thead>
+              <tr>
+                <th>Автомобиль</th>
+                <th>Тип ремонта</th>
+                <th>Дата</th>
+                <th>Следующий ремонт</th>
+                <th>Комментарий</th>
+                <th class="col-actions">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="repairsTbody">
+              {% for fix in fixes %}
+                <tr data-car-id="{{ fix.car_id }}" data-search="{{ fix.car.marka }} {{ fix.car.model }} {{ fix.car.gos_munber }} {{ fix.repair_type }} {{ fix.description }}">
+                  <td>
+                    <div class="car-name-cell">
+                      <span class="car-name">{{ fix.car.marka }} {{ fix.car.model }}</span>
+                      <span class="car-sub font-mono">{{ fix.car.gos_munber }}</span>
+                    </div>
+                  </td>
+                  <td><span class="repair-type">{{ fix.repair_type }}</span></td>
+                  <td>{{ fix.date|date:"d.m.Y" }}</td>
+                  <td>
+                    {% if fix.next_date %}
+                      {% now "Y-m-d" as today_str %}
+                      <span class="status-badge">{{ fix.next_date|date:"d.m.Y" }}</span>
+                    {% else %}—{% endif %}
+                  </td>
+                  <td class="text-muted">{{ fix.description|default:"—" }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="icon-btn edit" title="Редактировать" data-id="{{ fix.id }}" onclick="App.openRepairModal(+this.dataset.id)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="icon-btn del" title="Удалить" data-id="{{ fix.id }}" onclick="App.confirmDeleteRepair(+this.dataset.id)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr class="empty-row"><td colspan="6"><div class="empty-state">Ремонты не найдены</div></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── REMINDERS ─── -->
+      <section class="page" id="page-reminders">
+        <div class="page-header">
+          <h1 class="page-h1">Напоминания</h1>
+        </div>
+
+        <div class="reminders-filters">
+          <button class="filter-tab active" data-rf="all" onclick="App.setReminderFilter('all',this)">Все</button>
+          <button class="filter-tab" data-rf="overdue" onclick="App.setReminderFilter('overdue',this)">
+            <span class="dot red"></span> Просрочено
+          </button>
+          <button class="filter-tab" data-rf="this_month" onclick="App.setReminderFilter('this_month',this)">
+            <span class="dot amber"></span> В этом месяце
+          </button>
+          <button class="filter-tab" data-rf="next_month" onclick="App.setReminderFilter('next_month',this)">
+            <span class="dot blue"></span> В следующем месяце
+          </button>
+        </div>
+
+        <div class="reminders-list" id="remindersList">
+          {% for r in reminders %}
+            <div class="reminder-card {{ r.status }}" data-status="{{ r.status }}">
+              <div class="reminder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+              </div>
+              <div class="reminder-body">
+                <div class="reminder-title">
+                  {% if r.status == 'overdue' %}⚠ {% endif %}Необходимо проверить «{{ r.type }}» — {{ r.car }}
+                </div>
+                <div class="reminder-desc">
+                  Гос. номер: <strong>{{ r.plate }}</strong> · {{ r.label }}
+                </div>
+              </div>
+              <div class="reminder-date">{{ r.date|date:"d.m.Y" }}</div>
+            </div>
+          {% empty %}
+            <div class="empty-state">Нет напоминаний 🎉</div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- ─── REPORTS ─── -->
+      <section class="page" id="page-reports">
+        <div class="page-header">
+          <h1 class="page-h1">Отчёты</h1>
+        </div>
+
+        <div class="reports-grid">
+          <div class="report-card">
+            <div class="report-card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/>
+                <rect x="9" y="11" width="14" height="10" rx="2"/>
+                <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              </svg>
+            </div>
+            <div class="report-card-body">
+              <h3>Список автомобилей</h3>
+              <p>Полный список всех зарегистрированных автомобилей</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" onclick="App.exportReport('cars','xlsx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Excel
+                </button>
+                <button class="btn btn-outline" onclick="App.exportReport('cars','docx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Word
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <div class="report-card-body">
+              <h3>История ремонтов</h3>
+              <p>Все записи о проведённых ремонтах и обслуживании</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" onclick="App.exportReport('repairs','xlsx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Excel
+                </button>
+                <button class="btn btn-outline" onclick="App.exportReport('repairs','docx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Word
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-card-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+            </div>
+            <div class="report-card-body">
+              <h3>Предстоящее обслуживание</h3>
+              <p>Автомобили с ближайшими сроками ремонта и ТО</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" onclick="App.exportReport('upcoming','xlsx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Excel
+                </button>
+                <button class="btn btn-outline" onclick="App.exportReport('upcoming','docx')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Word
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview table -->
+        <div class="widget mt-6">
+          <div class="widget-header">
+            <h2 class="widget-title">Предварительный просмотр</h2>
+            <div class="report-type-tabs">
+              <button class="filter-tab active" onclick="App.setReportPreview('cars',this)">Автомобили</button>
+              <button class="filter-tab" onclick="App.setReportPreview('repairs',this)">Ремонты</button>
+              <button class="filter-tab" onclick="App.setReportPreview('upcoming',this)">Предстоящие</button>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="table-wrap" id="reportPreviewWrap"></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /pages -->
+  </div><!-- /main-wrapper -->
+
+  <!-- ════════════════════════ MODALS ════════════════════════ -->
+
+  <!-- Car Modal -->
+  <div class="modal-backdrop" id="carModalBackdrop" onclick="App.closeCarModal()">
+    <div class="modal" onclick="event.stopPropagation()" id="carModal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="carModalTitle">Добавить автомобиль</h2>
+        <button class="modal-close" onclick="App.closeCarModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <form class="modal-body" id="carForm" onsubmit="App.saveCar(event)">
+        <input type="hidden" id="carId" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Марка <span class="req">*</span></label>
+            <input type="text" class="form-input" id="carBrand" placeholder="Toyota" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Модель <span class="req">*</span></label>
+            <input type="text" class="form-input" id="carModel" placeholder="Camry" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Гос. номер <span class="req">*</span></label>
+            <input type="text" class="form-input" id="carPlate" placeholder="А123ВС77" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Год выпуска <span class="req">*</span></label>
+            <input type="number" class="form-input" id="carYear" placeholder="2020" min="1900" max="2030" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Примечание</label>
+          <textarea class="form-input form-textarea" id="carNote" placeholder="Дополнительная информация…" rows="3"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="App.closeCarModal()">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Repair Modal -->
+  <div class="modal-backdrop" id="repairModalBackdrop" onclick="App.closeRepairModal()">
+    <div class="modal" onclick="event.stopPropagation()" id="repairModal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="repairModalTitle">Добавить ремонт</h2>
+        <button class="modal-close" onclick="App.closeRepairModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <form class="modal-body" id="repairForm" onsubmit="App.saveRepair(event)">
+        <input type="hidden" id="repairId" />
+        <div class="form-group">
+          <label class="form-label">Автомобиль <span class="req">*</span></label>
+          <select class="form-input" id="repairCarId" required>
+            <option value="">Выберите автомобиль…</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Тип ремонта <span class="req">*</span></label>
+            <select class="form-input" id="repairType" required>
+              <option value="">Выберите тип…</option>
+              <option>Ходовая</option>
+              <option>Двигатель</option>
+              <option>Масло</option>
+              <option>Тормоза</option>
+              <option>Электрика</option>
+              <option>Кузов</option>
+              <option>Шины</option>
+              <option>ТО (плановое)</option>
+              <option>Другое</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата ремонта <span class="req">*</span></label>
+            <input type="date" class="form-input" id="repairDate" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Срок следующего ремонта</label>
+          <input type="date" class="form-input" id="repairNextDate" />
+          <div class="quick-dates" id="quickDates">
+            <span>Быстрый выбор:</span>
+            <button type="button" onclick="App.setNextDate(1)">+1 мес</button>
+            <button type="button" onclick="App.setNextDate(2)">+2 мес</button>
+            <button type="button" onclick="App.setNextDate(3)">+3 мес</button>
+            <button type="button" onclick="App.setNextDate(6)">+6 мес</button>
+            <button type="button" onclick="App.setNextDate(12)">+1 год</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Комментарий</label>
+          <textarea class="form-input form-textarea" id="repairComment" placeholder="Описание выполненных работ…" rows="3"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="App.closeRepairModal()">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Car Detail Modal -->
+  <div class="modal-backdrop" id="detailModalBackdrop" onclick="App.closeDetailModal()">
+    <div class="modal modal-wide" onclick="event.stopPropagation()" id="detailModal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="detailModalTitle">Автомобиль</h2>
+        <button class="modal-close" onclick="App.closeDetailModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="detailModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-backdrop" id="confirmModalBackdrop">
+    <div class="modal modal-sm" onclick="event.stopPropagation()" id="confirmModal">
+      <div class="modal-header">
+        <h2 class="modal-title">Подтверждение</h2>
+      </div>
+      <div class="modal-body">
+        <p id="confirmText">Вы уверены?</p>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="App.closeConfirm(false)">Отмена</button>
+          <button class="btn btn-danger" onclick="App.closeConfirm(true)">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ TOAST CONTAINER ════════════════════════ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script type="application/json" id="django-data">
+    {"alertReminderIds": {{ alert_reminder_ids_json|safe }}, "totalCars": {{ total_cars }}, "alertCount": {{ alert_count }}}
+  </script>
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
