@@ -337,13 +337,20 @@ def get_stylesheet(theme="light"):
         font-size: 11px;
         font-weight: 700;
     }}
+    QLabel[status="ok"] {{
+        background: {c['green_light']};
+        color: {c['green']};
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+    }}
 
     /* ── Reminder cards ── */
     QFrame[class="reminder-card"] {{
         background: {c['surface']};
         border: 1px solid {c['border']};
         border-radius: 12px;
-        padding: 12px;
     }}
     QFrame[reminder_status="overdue"] {{
         border-left: 4px solid {c['red']};
@@ -353,6 +360,88 @@ def get_stylesheet(theme="light"):
     }}
     QFrame[reminder_status="upcoming"] {{
         border-left: 4px solid {c['blue']};
+    }}
+
+    QLabel[class="reminder-icon"] {{
+        border-radius: 12px;
+        border: none;
+    }}
+    QLabel[class="reminder-icon"][reminder_status="overdue"] {{
+        background: {c['red_light']};
+    }}
+    QLabel[class="reminder-icon"][reminder_status="soon"] {{
+        background: {c['amber_light']};
+    }}
+    QLabel[class="reminder-icon"][reminder_status="upcoming"] {{
+        background: {c['blue_light']};
+    }}
+
+    QLabel[class="reminder-date"] {{
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+    }}
+    QLabel[class="reminder-date"][reminder_status="overdue"] {{
+        color: {c['red']};
+    }}
+    QLabel[class="reminder-date"][reminder_status="soon"] {{
+        color: {c['amber']};
+    }}
+    QLabel[class="reminder-date"][reminder_status="upcoming"] {{
+        color: {c['blue']};
+    }}
+
+    /* ── Report cards ── */
+    QFrame[class="report-card"] {{
+        background: {c['surface']};
+        border: 1px solid {c['border']};
+        border-radius: 12px;
+        padding: 16px;
+    }}
+    QFrame[class="report-card"]:hover[report_status="blue"] {{
+        border-color: {c['blue']};
+    }}
+    QFrame[class="report-card"]:hover[report_status="green"] {{
+        border-color: {c['green']};
+    }}
+    QFrame[class="report-card"]:hover[report_status="amber"] {{
+        border-color: {c['amber']};
+    }}
+    QFrame[class="report-card"]:hover[report_status="purple"] {{
+        border-color: {c['purple']};
+    }}
+
+    QLabel[class="report-icon"] {{
+        border-radius: 12px;
+        border: none;
+    }}
+    QLabel[class="report-icon"][report_status="blue"] {{
+        background: {c['blue_light']};
+    }}
+    QLabel[class="report-icon"][report_status="green"] {{
+        background: {c['green_light']};
+    }}
+    QLabel[class="report-icon"][report_status="amber"] {{
+        background: {c['amber_light']};
+    }}
+    QLabel[class="report-icon"][report_status="purple"] {{
+        background: {c['purple_light']};
+    }}
+
+    /* ── Dashboard elements ── */
+    QFrame[class="card"] {{
+        background: {c['surface']};
+        border: 1px solid {c['border']};
+        border-radius: 12px;
+    }}
+    QFrame[class="list-item"] {{
+        background: {c['bg']};
+        border-radius: 8px;
+        border: none;
+    }}
+    QFrame[class="list-item"]:hover {{
+        background: {c['surface']};
+        border: 1px solid {c['border']};
     }}
 
     /* ── Dialog ── */

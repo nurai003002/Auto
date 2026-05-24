@@ -58,10 +58,7 @@ class DashboardPage(QWidget):
 
         # Reminders widget
         rem_group = QFrame()
-        rem_group.setStyleSheet("""
-            QFrame { background: white; border: 1px solid #e2e8f0;
-                     border-radius: 12px; }
-        """)
+        rem_group.setProperty("class", "card")
         rem_layout = QVBoxLayout(rem_group)
         rem_layout.setContentsMargins(20, 16, 20, 16)
 
@@ -81,7 +78,7 @@ class DashboardPage(QWidget):
 
         # Recent cars widget
         cars_group = QFrame()
-        cars_group.setStyleSheet(rem_group.styleSheet())
+        cars_group.setProperty("class", "card")
         cars_layout = QVBoxLayout(cars_group)
         cars_layout.setContentsMargins(20, 16, 20, 16)
 
@@ -146,11 +143,7 @@ class DashboardPage(QWidget):
 
     def _make_reminder_item(self, r):
         frame = QFrame()
-        frame.setStyleSheet("""
-            QFrame { background: #f8fafc; border-radius: 8px;
-                     padding: 8px; border: none; }
-            QFrame:hover { background: #eef2f7; }
-        """)
+        frame.setProperty("class", "list-item")
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(10, 8, 10, 8)
 
@@ -205,10 +198,7 @@ class DashboardPage(QWidget):
 
     def _make_car_item(self, car):
         frame = QFrame()
-        frame.setStyleSheet("""
-            QFrame { background: #f8fafc; border-radius: 8px; border: none; }
-            QFrame:hover { background: #eef2f7; }
-        """)
+        frame.setProperty("class", "list-item")
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(10, 8, 10, 8)
 
@@ -229,28 +219,12 @@ class DashboardPage(QWidget):
         layout.addLayout(info)
         layout.addStretch()
 
-        # Status badge (like web version)
+        # Status badge
         repairs = models.get_repairs_for_car(car["id"])
         status, status_text = self._get_car_status(repairs)
         badge = QLabel(status_text)
-        if status == "overdue":
-            badge.setStyleSheet("""
-                background: #fef2f2; color: #ef4444;
-                padding: 3px 10px; border-radius: 12px;
-                font-size: 11px; font-weight: 700; border: none;
-            """)
-        elif status == "soon":
-            badge.setStyleSheet("""
-                background: #fffbeb; color: #f59e0b;
-                padding: 3px 10px; border-radius: 12px;
-                font-size: 11px; font-weight: 700; border: none;
-            """)
-        else:
-            badge.setStyleSheet("""
-                background: #ecfdf5; color: #10b981;
-                padding: 3px 10px; border-radius: 12px;
-                font-size: 11px; font-weight: 700; border: none;
-            """)
+        badge.setProperty("class", "status-badge")
+        badge.setProperty("status", status)
         layout.addWidget(badge)
 
         return frame

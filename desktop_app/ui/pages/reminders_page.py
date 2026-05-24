@@ -108,35 +108,17 @@ class RemindersPage(QWidget):
         frame.setProperty("class", "reminder-card")
         frame.setProperty("reminder_status", status)
 
-        colors = {
-            "overdue": ("#fef2f2", "#ef4444", "#dc2626"),
-            "soon": ("#fffbeb", "#f59e0b", "#92400e"),
-            "upcoming": ("#eff6ff", "#3b82f6", "#1d4ed8"),
-        }
-        bg, accent, text_c = colors.get(status, colors["upcoming"])
-
-        frame.setStyleSheet(f"""
-            QFrame {{
-                background: {bg};
-                border: 1px solid #e2e8f0;
-                border-left: 4px solid {accent};
-                border-radius: 12px;
-                padding: 12px 16px;
-            }}
-        """)
-
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(12, 12, 16, 12)
         layout.setSpacing(14)
 
-        # Bell icon (matching web design)
+        # Bell icon
         icon_container = QLabel("🔔")
+        icon_container.setProperty("class", "reminder-icon")
+        icon_container.setProperty("reminder_status", status)
         icon_container.setFixedSize(44, 44)
         icon_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
         icon_container.setFont(QFont(app_font_family(), 18))
-        icon_container.setStyleSheet(f"""
-            background: {accent}22; border-radius: 12px; border: none;
-        """)
         layout.addWidget(icon_container)
 
         # Body
@@ -175,10 +157,8 @@ class RemindersPage(QWidget):
                 formatted = str(date_str)
 
             date_lbl = QLabel(formatted)
-            date_lbl.setStyleSheet(f"""
-                font-size: 13px; font-weight: 700;
-                color: {text_c}; border: none;
-            """)
+            date_lbl.setProperty("class", "reminder-date")
+            date_lbl.setProperty("reminder_status", status)
             layout.addWidget(date_lbl)
 
         return frame

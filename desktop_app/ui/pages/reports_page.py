@@ -33,14 +33,14 @@ class ReportsPage(QWidget):
         cards_layout.setSpacing(16)
 
         reports = [
-            ("🚗", "Список автомобилей", "Полный список зарегистрированных авто", "cars", "#eff6ff", "#3b82f6"),
-            ("🔧", "История ремонтов", "Все записи о ремонтах и обслуживании", "repairs", "#ecfdf5", "#10b981"),
-            ("⏰", "Предстоящее ТО", "Автомобили с ближайшими сроками", "upcoming", "#fffbeb", "#f59e0b"),
-            ("💰", "Расходы", "Расходы по автомобилям", "costs", "#f5f3ff", "#8b5cf6"),
+            ("🚗", "Список автомобилей", "Полный список зарегистрированных авто", "cars", "blue"),
+            ("🔧", "История ремонтов", "Все записи о ремонтах и обслуживании", "repairs", "green"),
+            ("⏰", "Предстоящее ТО", "Автомобили с ближайшими сроками", "upcoming", "amber"),
+            ("💰", "Расходы", "Расходы по автомобилям", "costs", "purple"),
         ]
 
-        for icon, name, desc, key, bg, fg in reports:
-            card = self._make_report_card(icon, name, desc, key, bg, fg)
+        for icon, name, desc, key, status in reports:
+            card = self._make_report_card(icon, name, desc, key, status)
             cards_layout.addWidget(card)
         layout.addLayout(cards_layout)
 
@@ -78,23 +78,21 @@ class ReportsPage(QWidget):
 
         layout.addWidget(preview_frame)
 
-    def _make_report_card(self, icon, name, desc, key, bg, fg):
+    def _make_report_card(self, icon, name, desc, key, status):
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{ background: white; border: 1px solid #e2e8f0;
-                      border-radius: 12px; padding: 16px; }}
-            QFrame:hover {{ border-color: {fg}; }}
-        """)
+        card.setProperty("class", "report-card")
+        card.setProperty("report_status", status)
         card.setCursor(Qt.CursorShape.PointingHandCursor)
 
         layout = QVBoxLayout(card)
         layout.setSpacing(8)
 
         icon_lbl = QLabel(icon)
+        icon_lbl.setProperty("class", "report-icon")
+        icon_lbl.setProperty("report_status", status)
         icon_lbl.setFont(QFont(app_font_family(), 22))
         icon_lbl.setFixedSize(48, 48)
         icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_lbl.setStyleSheet(f"background: {bg}; border-radius: 12px; border: none;")
         layout.addWidget(icon_lbl)
 
         name_lbl = QLabel(name)

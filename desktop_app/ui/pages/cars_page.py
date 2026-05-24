@@ -122,28 +122,12 @@ class CarsPage(QWidget):
             else:
                 self.table.setItem(row, 5, QTableWidgetItem("—"))
 
-            # Status badge (styled widget like web version)
+            # Status badge
             status = self._get_car_status(repairs)
             status_widget = QLabel(f"● {status[1]}")
+            status_widget.setProperty("class", "status-badge")
+            status_widget.setProperty("status", status[0])
             status_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            if status[0] == "overdue":
-                status_widget.setStyleSheet("""
-                    background: #fef2f2; color: #ef4444;
-                    padding: 4px 12px; border-radius: 12px;
-                    font-size: 11px; font-weight: 700;
-                """)
-            elif status[0] == "soon":
-                status_widget.setStyleSheet("""
-                    background: #fffbeb; color: #f59e0b;
-                    padding: 4px 12px; border-radius: 12px;
-                    font-size: 11px; font-weight: 700;
-                """)
-            else:
-                status_widget.setStyleSheet("""
-                    background: #ecfdf5; color: #10b981;
-                    padding: 4px 12px; border-radius: 12px;
-                    font-size: 11px; font-weight: 700;
-                """)
             self.table.setCellWidget(row, 6, status_widget)
 
             # Actions
