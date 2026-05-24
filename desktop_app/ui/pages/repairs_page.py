@@ -161,14 +161,14 @@ class RepairsPage(QWidget):
             if self.user_role in ("admin", "operator"):
                 edit_btn = QPushButton("✏️")
                 edit_btn.setFixedSize(32, 32)
-                edit_btn.setStyleSheet("border-radius: 6px; font-size: 14px;")
+                edit_btn.setProperty("class", "btn-icon")
                 edit_btn.clicked.connect(lambda _, rid=r["id"]: self._edit_repair(rid))
                 al.addWidget(edit_btn)
 
             if self.user_role == "admin":
                 del_btn = QPushButton("🗑")
                 del_btn.setFixedSize(32, 32)
-                del_btn.setStyleSheet("border-radius: 6px; font-size: 14px;")
+                del_btn.setProperty("class", "btn-icon")
                 del_btn.clicked.connect(lambda _, rid=r["id"]: self._delete_repair(rid))
                 al.addWidget(del_btn)
 

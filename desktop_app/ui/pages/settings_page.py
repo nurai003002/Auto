@@ -248,6 +248,7 @@ class SettingsPage(QWidget):
 
                 del_btn = QPushButton("🗑")
                 del_btn.setFixedSize(32, 32)
+                del_btn.setProperty("class", "btn-icon")
                 if u["id"] == 1:  # Don't delete main admin
                     del_btn.setEnabled(False)
                 del_btn.clicked.connect(lambda _, uid=u["id"]: self._del_user(uid))

@@ -139,7 +139,7 @@ class CarsPage(QWidget):
             view_btn = QPushButton("👁")
             view_btn.setToolTip("Просмотр")
             view_btn.setFixedSize(32, 32)
-            view_btn.setStyleSheet("border-radius: 6px; font-size: 14px;")
+            view_btn.setProperty("class", "btn-icon")
             view_btn.clicked.connect(lambda _, cid=car["id"]: self._view_car(cid))
             actions_layout.addWidget(view_btn)
 
@@ -147,7 +147,7 @@ class CarsPage(QWidget):
                 edit_btn = QPushButton("✏️")
                 edit_btn.setToolTip("Редактировать")
                 edit_btn.setFixedSize(32, 32)
-                edit_btn.setStyleSheet("border-radius: 6px; font-size: 14px;")
+                edit_btn.setProperty("class", "btn-icon")
                 edit_btn.clicked.connect(lambda _, cid=car["id"]: self._edit_car(cid))
                 actions_layout.addWidget(edit_btn)
 
@@ -155,7 +155,7 @@ class CarsPage(QWidget):
                 del_btn = QPushButton("🗑")
                 del_btn.setToolTip("Удалить")
                 del_btn.setFixedSize(32, 32)
-                del_btn.setStyleSheet("border-radius: 6px; font-size: 14px;")
+                del_btn.setProperty("class", "btn-icon")
                 del_btn.clicked.connect(lambda _, cid=car["id"]: self._delete_car(cid))
                 actions_layout.addWidget(del_btn)
 
