@@ -46,10 +46,7 @@ class ReportsPage(QWidget):
 
         # Preview
         preview_frame = QFrame()
-        preview_frame.setStyleSheet("""
-            QFrame { background: white; border: 1px solid #e2e8f0;
-                     border-radius: 12px; }
-        """)
+        preview_frame.setProperty("class", "card")
         pv_layout = QVBoxLayout(preview_frame)
         pv_layout.setContentsMargins(20, 16, 20, 16)
 
@@ -73,7 +70,7 @@ class ReportsPage(QWidget):
         self.preview_table.verticalHeader().setVisible(False)
         self.preview_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.preview_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.preview_table.setStyleSheet("border: none;")
+        self.preview_table.setProperty("class", "preview-table")
         pv_layout.addWidget(self.preview_table)
 
         layout.addWidget(preview_frame)
@@ -101,7 +98,7 @@ class ReportsPage(QWidget):
         layout.addWidget(name_lbl)
 
         desc_lbl = QLabel(desc)
-        desc_lbl.setStyleSheet("color: #64748b; font-size: 12px; border: none;")
+        desc_lbl.setProperty("class", "report-desc")
         desc_lbl.setWordWrap(True)
         layout.addWidget(desc_lbl)
 

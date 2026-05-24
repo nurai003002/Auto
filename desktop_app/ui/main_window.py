@@ -57,14 +57,12 @@ class MainWindow(QMainWindow):
         # Breadcrumb header (like web version)
         self.header_bar = QWidget()
         self.header_bar.setFixedHeight(48)
-        self.header_bar.setStyleSheet("""
-            background: white; border-bottom: 1px solid #e2e8f0;
-        """)
+        self.header_bar.setProperty("class", "header-bar")
         hbar_layout = QHBoxLayout(self.header_bar)
         hbar_layout.setContentsMargins(24, 0, 24, 0)
 
         self.breadcrumb_label = QLabel("AutoTrack / Панель управления")
-        self.breadcrumb_label.setStyleSheet("color: #64748b; font-size: 13px;")
+        self.breadcrumb_label.setProperty("class", "breadcrumb")
         hbar_layout.addWidget(self.breadcrumb_label)
         hbar_layout.addStretch()
 

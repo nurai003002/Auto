@@ -145,6 +145,10 @@ def get_stylesheet(theme="light"):
         border-bottom: 1px solid {c['border']};
     }}
 
+    QTableWidget[class="preview-table"] {{
+        border: none;
+    }}
+
     /* ── Buttons ── */
     QPushButton[class="btn-primary"] {{
         background-color: {c['blue']};
@@ -430,6 +434,12 @@ def get_stylesheet(theme="light"):
         background: {c['purple_light']};
     }}
 
+    QLabel[class="report-desc"] {{
+        color: {c['text2']};
+        font-size: 12px;
+        border: none;
+    }}
+
     /* ── Dashboard elements ── */
     QFrame[class="card"] {{
         background: {c['surface']};
@@ -444,6 +454,16 @@ def get_stylesheet(theme="light"):
     QFrame[class="list-item"]:hover {{
         background: {c['surface']};
         border: 1px solid {c['border']};
+    }}
+
+    QWidget[class="header-bar"] {{
+        background: {c['surface']};
+        border-bottom: 1px solid {c['border']};
+    }}
+    QLabel[class="breadcrumb"] {{
+        color: {c['text2']};
+        font-size: 13px;
+        border: none;
     }}
 
     /* ── Dialog ── */
