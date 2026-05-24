@@ -9,13 +9,24 @@ import hashlib
 from datetime import datetime
 from pathlib import Path
 
+import sys
 
 def get_db_path():
     """Return the path to the SQLite database file."""
-    # Store in user's app data or alongside the executable
-    app_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent.parent
-    data_dir = app_dir / "data"
-    data_dir.mkdir(exist_ok=True)
+    # If compiled with PyInstaller, use user's AppData to avoid permission errors in Program Files
+    if getattr(sys, 'frozen', False):
+        if sys.platform == "win32":
+            base_dir = Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "AutoTrack"
+        elif sys.platform == "darwin":
+            base_dir = Path.home() / "Library" / "Application Support" / "AutoTrack"
+        else:
+            base_dir = Path.home() / ".autotrack"
+    else:
+        # During development, store locally
+        base_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent.parent
+
+    data_dir = base_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
     return str(data_dir / "autotrack.db")
 
 
