@@ -117,9 +117,9 @@ def get_stylesheet(theme="light"):
         color: {c['text2']};
     }}
 
-    /* ── Tables ── */
     QTableWidget {{
         background-color: {c['surface']};
+        alternate-background-color: {c['bg']};
         border: 1px solid {c['border']};
         border-radius: 12px;
         gridline-color: {c['border']};
@@ -150,6 +150,20 @@ def get_stylesheet(theme="light"):
     }}
 
     /* ── Buttons ── */
+    QPushButton {{
+        background-color: {c['surface']};
+        color: {c['text']};
+        border: 1px solid {c['border']};
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-weight: 500;
+        font-size: 13px;
+        min-height: 28px;
+    }}
+    QPushButton:hover {{
+        background-color: {c['hover']};
+    }}
+
     QPushButton[class="btn-primary"] {{
         background-color: {c['blue']};
         color: white;
@@ -474,6 +488,9 @@ def get_stylesheet(theme="light"):
     /* ── Message Box ── */
     QMessageBox {{
         background: {c['surface']};
+    }}
+    QMessageBox QLabel {{
+        color: {c['text']};
     }}
 
     /* ── Menu ── */

@@ -88,7 +88,7 @@ class SettingsPage(QWidget):
             self.users_table.setHorizontalHeaderLabels(["ID", "Логин", "Имя", "Роль", "Действия"])
             self.users_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.users_table.verticalHeader().setVisible(False)
-            self.users_table.setStyleSheet("border: none;")
+            self.users_table.setProperty("class", "preview-table")
             users_card.layout().addWidget(self.users_table)
             layout.addWidget(users_card)
 
@@ -99,7 +99,7 @@ class SettingsPage(QWidget):
             self.log_table.setHorizontalHeaderLabels(["Дата/Время", "Пользователь", "Действие", "Детали"])
             self.log_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.log_table.verticalHeader().setVisible(False)
-            self.log_table.setStyleSheet("border: none;")
+            self.log_table.setProperty("class", "preview-table")
             log_card.layout().addWidget(self.log_table)
             layout.addWidget(log_card)
 
@@ -118,15 +118,12 @@ class SettingsPage(QWidget):
 
     def _card(self, title):
         frame = QFrame()
-        frame.setStyleSheet("""
-            QFrame { background: white; border: 1px solid #e2e8f0;
-                     border-radius: 12px; padding: 16px; }
-        """)
+        frame.setProperty("class", "card")
         layout = QVBoxLayout(frame)
         layout.setSpacing(12)
         lbl = QLabel(title)
         lbl.setFont(QFont(app_font_family(), 14, QFont.Weight.Bold))
-        lbl.setStyleSheet("border: none;")
+        lbl.setProperty("class", "card-title")
         layout.addWidget(lbl)
         return frame
 

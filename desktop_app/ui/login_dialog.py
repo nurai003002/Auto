@@ -20,60 +20,62 @@ class LoginDialog(QDialog):
         self._build_ui()
 
     def _build_ui(self):
+        # We need the global stylesheet for this dialog since it's shown before MainWindow
+        from desktop_app.ui.styles import get_stylesheet
+        from desktop_app.database import models
+        theme = models.get_setting("theme", "light")
+        self.setStyleSheet(get_stylesheet(theme))
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
         card = QFrame()
-        card.setStyleSheet("""
-            QFrame {
-                background: #ffffff;
-                border-radius: 16px;
-                border: 1px solid #e2e8f0;
-            }
-        """)
+        card.setProperty("class", "card")
+        card.setStyleSheet("border-radius: 16px;") # keep round corners for frameless
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(32, 32, 32, 32)
+        layout.setContentsMargins(32, 24, 32, 32)
         layout.setSpacing(16)
+
+        # Header with close button
+        header = QHBoxLayout()
+        header.addStretch()
+        close_btn = QPushButton("✕")
+        close_btn.setProperty("class", "btn-icon")
+        close_btn.setFixedSize(28, 28)
+        close_btn.clicked.connect(self.reject)
+        header.addWidget(close_btn)
+        layout.addLayout(header)
 
         # Logo
         logo = QLabel("🚗 AutoTrack")
         logo.setFont(QFont(app_font_family(), 20, QFont.Weight.Bold))
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        logo.setStyleSheet("color: #1e293b; border: none;")
+        logo.setStyleSheet("border: none;")
         layout.addWidget(logo)
 
         subtitle = QLabel("Войдите в систему")
+        subtitle.setProperty("class", "page-subtitle")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setStyleSheet("color: #64748b; font-size: 13px; border: none;")
+        subtitle.setStyleSheet("border: none;")
         layout.addWidget(subtitle)
 
         layout.addSpacing(8)
 
         # Username
         lbl1 = QLabel("Логин")
-        lbl1.setStyleSheet("color: #64748b; font-size: 12px; font-weight: 600; border: none;")
+        lbl1.setProperty("class", "form-label")
         layout.addWidget(lbl1)
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Введите логин...")
-        self.username_input.setStyleSheet("""
-            QLineEdit {
-                background: #f1f5f9; border: 1px solid #e2e8f0;
-                border-radius: 8px; padding: 0 14px;
-                font-size: 14px; color: #1e293b;
-                min-height: 40px;
-            }
-            QLineEdit:focus { border-color: #3b82f6; }
-        """)
         layout.addWidget(self.username_input)
 
         # Password
         lbl2 = QLabel("Пароль")
-        lbl2.setStyleSheet("color: #64748b; font-size: 12px; font-weight: 600; border: none;")
+        lbl2.setProperty("class", "form-label")
         layout.addWidget(lbl2)
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Введите пароль...")
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
-        self.password_input.setStyleSheet(self.username_input.styleSheet())
         self.password_input.returnPressed.connect(self._login)
         layout.addWidget(self.password_input)
 
@@ -81,16 +83,9 @@ class LoginDialog(QDialog):
 
         # Login button
         btn = QPushButton("Войти")
+        btn.setProperty("class", "btn-primary")
         btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn.setStyleSheet("""
-            QPushButton {
-                background: #3b82f6; color: white;
-                border: none; border-radius: 8px;
-                padding: 11px; font-size: 14px; font-weight: 600;
-            }
-            QPushButton:hover { background: #1d4ed8; }
-            QPushButton:pressed { background: #3b82f6; }
-        """)
+        btn.setMinimumHeight(44)
         btn.clicked.connect(self._login)
         layout.addWidget(btn)
 

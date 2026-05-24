@@ -10,7 +10,7 @@ from desktop_app.utils.helpers import app_font_family
 class StatCard(QFrame):
     def __init__(self, icon: str, value: str, label: str, color: str = "blue", parent=None):
         super().__init__(parent)
-        self.setProperty("class", "stat-card")
+        self.setProperty("class", "card")
         self.setFixedHeight(90)
         self._build_ui(icon, value, label, color)
 
