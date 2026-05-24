@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QHeaderView, QLineEdit, QFormLayout, QDialog)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 from desktop_app.database.db import get_db_path
 from desktop_app.services.backup import create_backup, restore_backup
@@ -27,7 +28,7 @@ class SettingsPage(QWidget):
 
         title = QLabel("Настройки")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         layout.addWidget(title)
 
         # Theme
@@ -124,7 +125,7 @@ class SettingsPage(QWidget):
         layout = QVBoxLayout(frame)
         layout.setSpacing(12)
         lbl = QLabel(title)
-        lbl.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        lbl.setFont(QFont(app_font_family(), 14, QFont.Weight.Bold))
         lbl.setStyleSheet("border: none;")
         layout.addWidget(lbl)
         return frame

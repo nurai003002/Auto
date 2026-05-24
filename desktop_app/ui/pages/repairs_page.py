@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QDateEdit, QAbstractItemView)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 from desktop_app.ui.dialogs.repair_dialog import RepairDialog
 from desktop_app.ui.dialogs.confirm_dialog import confirm_delete
@@ -28,7 +29,7 @@ class RepairsPage(QWidget):
         header = QHBoxLayout()
         title = QLabel("История ремонтов")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         header.addWidget(title)
         header.addStretch()
 
@@ -126,7 +127,20 @@ class RepairsPage(QWidget):
             self.table.setItem(row, 0, QTableWidgetItem(
                 f"{r['brand']} {r['model']} ({r['plate']})"
             ))
-            self.table.setItem(row, 1, QTableWidgetItem(r["repair_type"]))
+            # Repair type pill badge
+            type_lbl = QLabel(r["repair_type"])
+            type_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            type_lbl.setStyleSheet("""
+                background: #eff6ff; color: #1d4ed8;
+                padding: 4px 12px; border-radius: 12px;
+                font-size: 11px; font-weight: 700; border: none;
+            """)
+            type_widget = QWidget()
+            tw_layout = QHBoxLayout(type_widget)
+            tw_layout.setContentsMargins(4, 2, 4, 2)
+            tw_layout.addWidget(type_lbl)
+            tw_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            self.table.setCellWidget(row, 1, type_widget)
             self.table.setItem(row, 2, QTableWidgetItem(r["date"]))
             self.table.setItem(row, 3, QTableWidgetItem(
                 f"{r.get('mileage_at_repair', 0):,} км".replace(",", " ")

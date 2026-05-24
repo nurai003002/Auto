@@ -4,6 +4,7 @@ AutoTrack — Stat card widget for dashboard.
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 
 
 class StatCard(QFrame):
@@ -29,7 +30,7 @@ class StatCard(QFrame):
         icon_lbl = QLabel(icon)
         icon_lbl.setFixedSize(48, 48)
         icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_lbl.setFont(QFont("Segoe UI", 18))
+        icon_lbl.setFont(QFont(app_font_family(), 18))
         icon_lbl.setStyleSheet(f"""
             background: {bg}; color: {fg};
             border-radius: 12px; border: none;
@@ -41,7 +42,7 @@ class StatCard(QFrame):
 
         val_lbl = QLabel(str(value))
         val_lbl.setProperty("class", "stat-value")
-        val_lbl.setFont(QFont("Segoe UI", 24, QFont.Weight.ExtraBold))
+        val_lbl.setFont(QFont(app_font_family(), 24, QFont.Weight.ExtraBold))
         val_lbl.setStyleSheet("border: none;")
         text_layout.addWidget(val_lbl)
         self._value_label = val_lbl

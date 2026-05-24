@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QPushButton, QFrame, QScrollArea)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 
 
@@ -22,14 +23,14 @@ class RemindersPage(QWidget):
 
         title = QLabel("Напоминания")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         layout.addWidget(title)
 
         # Filters
         filters = QHBoxLayout()
         filters.setSpacing(4)
-        for key, text in [("all", "Все"), ("overdue", "🔴 Просрочено"),
-                          ("soon", "🟡 Скоро (≤7 дн.)"), ("upcoming", "🔵 В этом месяце")]:
+        for key, text in [("all", "Все"), ("overdue", "● Просрочено"),
+                          ("soon", "● В этом месяце"), ("upcoming", "● В следующем месяце")]:
             btn = QPushButton(text)
             btn.setProperty("class", "filter-tab")
             btn.setProperty("active", "true" if key == "all" else "false")
@@ -108,7 +109,7 @@ class RemindersPage(QWidget):
         frame.setProperty("reminder_status", status)
 
         colors = {
-            "overdue": ("#fef2f2", "#ef4444", "#991b1b"),
+            "overdue": ("#fef2f2", "#ef4444", "#dc2626"),
             "soon": ("#fffbeb", "#f59e0b", "#92400e"),
             "upcoming": ("#eff6ff", "#3b82f6", "#1d4ed8"),
         }
@@ -116,7 +117,7 @@ class RemindersPage(QWidget):
 
         frame.setStyleSheet(f"""
             QFrame {{
-                background: white;
+                background: {bg};
                 border: 1px solid #e2e8f0;
                 border-left: 4px solid {accent};
                 border-radius: 12px;
@@ -125,24 +126,27 @@ class RemindersPage(QWidget):
         """)
 
         layout = QHBoxLayout(frame)
-        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setContentsMargins(12, 12, 16, 12)
         layout.setSpacing(14)
 
-        # Icon
-        icons = {"overdue": "🔴", "soon": "🟡", "upcoming": "🔵"}
-        icon = QLabel(icons.get(status, "🔔"))
-        icon.setFont(QFont("Segoe UI", 18))
-        icon.setStyleSheet("border: none;")
-        icon.setFixedWidth(32)
-        layout.addWidget(icon)
+        # Bell icon (matching web design)
+        icon_container = QLabel("🔔")
+        icon_container.setFixedSize(44, 44)
+        icon_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_container.setFont(QFont(app_font_family(), 18))
+        icon_container.setStyleSheet(f"""
+            background: {accent}22; border-radius: 12px; border: none;
+        """)
+        layout.addWidget(icon_container)
 
         # Body
         body = QVBoxLayout()
-        body.setSpacing(3)
+        body.setSpacing(4)
 
+        # Title: "⚠ Необходимо проверить «Тип» — Марка Модель"
         prefix = "⚠ " if status == "overdue" else ""
-        title = QLabel(f"{prefix}{r['repair_type']} — {r['brand']} {r['model']}")
-        title.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        title = QLabel(f"{prefix}Необходимо проверить «{r['repair_type']}» — {r['brand']} {r['model']}")
+        title.setFont(QFont(app_font_family(), 13, QFont.Weight.Bold))
         title.setStyleSheet("border: none;")
         body.addWidget(title)
 
@@ -155,21 +159,26 @@ class RemindersPage(QWidget):
             sub_text = f"Гос. номер: {r['plate']} · Через {days} дн."
 
         sub = QLabel(sub_text)
-        sub.setStyleSheet(f"color: #64748b; font-size: 12px; border: none;")
+        sub.setStyleSheet("color: #64748b; font-size: 12px; border: none;")
         body.addWidget(sub)
         layout.addLayout(body)
 
         layout.addStretch()
 
-        # Date badge
+        # Date (matching web: colored, dd.MM.yyyy)
         date_str = r.get("next_date", "")
         if date_str:
-            badge = QLabel(str(date_str))
-            badge.setStyleSheet(f"""
-                background: {bg}; color: {text_c};
-                font-size: 11px; font-weight: 700;
-                padding: 4px 10px; border-radius: 6px; border: none;
+            try:
+                parts = date_str.split("-")
+                formatted = f"{parts[2]}.{parts[1]}.{parts[0]}"
+            except (IndexError, AttributeError):
+                formatted = str(date_str)
+
+            date_lbl = QLabel(formatted)
+            date_lbl.setStyleSheet(f"""
+                font-size: 13px; font-weight: 700;
+                color: {text_c}; border: none;
             """)
-            layout.addWidget(badge)
+            layout.addWidget(date_lbl)
 
         return frame

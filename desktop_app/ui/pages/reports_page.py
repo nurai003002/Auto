@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 from desktop_app.services.export import export_to_excel, export_to_word, export_to_pdf
 
@@ -24,7 +25,7 @@ class ReportsPage(QWidget):
 
         title = QLabel("Отчёты")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         layout.addWidget(title)
 
         # Report cards
@@ -54,7 +55,7 @@ class ReportsPage(QWidget):
 
         pv_header = QHBoxLayout()
         self.preview_title = QLabel("📋 Предварительный просмотр")
-        self.preview_title.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        self.preview_title.setFont(QFont(app_font_family(), 13, QFont.Weight.Bold))
         self.preview_title.setStyleSheet("border: none;")
         pv_header.addWidget(self.preview_title)
         pv_header.addStretch()
@@ -90,14 +91,14 @@ class ReportsPage(QWidget):
         layout.setSpacing(8)
 
         icon_lbl = QLabel(icon)
-        icon_lbl.setFont(QFont("Segoe UI", 22))
+        icon_lbl.setFont(QFont(app_font_family(), 22))
         icon_lbl.setFixedSize(48, 48)
         icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         icon_lbl.setStyleSheet(f"background: {bg}; border-radius: 12px; border: none;")
         layout.addWidget(icon_lbl)
 
         name_lbl = QLabel(name)
-        name_lbl.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        name_lbl.setFont(QFont(app_font_family(), 13, QFont.Weight.Bold))
         name_lbl.setStyleSheet("border: none;")
         layout.addWidget(name_lbl)
 

@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                               QFormLayout, QMessageBox)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 
 
@@ -28,7 +29,7 @@ class RepairDialog(QDialog):
         layout.setContentsMargins(24, 24, 24, 24)
 
         title = QLabel("🔧 " + self.windowTitle())
-        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 16, QFont.Weight.Bold))
         layout.addWidget(title)
 
         form = QFormLayout()

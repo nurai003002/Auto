@@ -19,6 +19,7 @@ from PyQt6.QtGui import QFont
 from desktop_app.database.db import init_db
 from desktop_app.ui.login_dialog import LoginDialog
 from desktop_app.ui.main_window import MainWindow
+from desktop_app.utils.helpers import app_font_family
 
 
 def main():
@@ -32,7 +33,7 @@ def main():
     app.setStyle("Fusion")
 
     # Set default font
-    font = QFont("Segoe UI", 13)
+    font = QFont(app_font_family(), 13)
     app.setFont(font)
 
     # Show login dialog

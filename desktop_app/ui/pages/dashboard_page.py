@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QFrame, QGridLayout, QScrollArea)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.ui.widgets.stat_card import StatCard
 from desktop_app.database import models
 
@@ -29,7 +30,7 @@ class DashboardPage(QWidget):
         header = QHBoxLayout()
         title = QLabel("Панель управления")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         header.addWidget(title)
         header.addStretch()
 
@@ -66,7 +67,7 @@ class DashboardPage(QWidget):
 
         rem_header = QHBoxLayout()
         rem_title = QLabel("🔔 Ближайшие напоминания")
-        rem_title.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        rem_title.setFont(QFont(app_font_family(), 13, QFont.Weight.Bold))
         rem_title.setStyleSheet("border: none;")
         rem_header.addWidget(rem_title)
         rem_header.addStretch()
@@ -86,7 +87,7 @@ class DashboardPage(QWidget):
 
         cars_header = QHBoxLayout()
         cars_title = QLabel("🚗 Последние автомобили")
-        cars_title.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        cars_title.setFont(QFont(app_font_family(), 13, QFont.Weight.Bold))
         cars_title.setStyleSheet("border: none;")
         cars_header.addWidget(cars_title)
         cars_header.addStretch()
@@ -173,7 +174,7 @@ class DashboardPage(QWidget):
         info = QVBoxLayout()
         info.setSpacing(1)
         title = QLabel(f"{r['brand']} {r['model']} — {r['repair_type']}")
-        title.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        title.setFont(QFont(app_font_family(), 12, QFont.Weight.DemiBold))
         title.setStyleSheet("border: none;")
         info.addWidget(title)
 
@@ -185,11 +186,18 @@ class DashboardPage(QWidget):
 
         date_str = r.get("next_date", "")
         if date_str:
-            d_lbl = QLabel(str(date_str))
-            d_lbl.setStyleSheet("""
-                font-size: 11px; font-weight: 700; padding: 3px 8px;
-                border-radius: 6px; border: none;
-                background: #eff6ff; color: #1d4ed8;
+            # Format date as dd.MM.yyyy like web version
+            try:
+                parts = date_str.split("-")
+                formatted = f"{parts[2]}.{parts[1]}.{parts[0]}"
+            except (IndexError, AttributeError):
+                formatted = str(date_str)
+
+            color = "#ef4444" if (days_overdue and days_overdue > 0) else "#1d4ed8"
+            d_lbl = QLabel(f"● {formatted}")
+            d_lbl.setStyleSheet(f"""
+                font-size: 12px; font-weight: 700;
+                color: {color}; border: none;
             """)
             layout.addWidget(d_lbl)
 
@@ -211,7 +219,7 @@ class DashboardPage(QWidget):
         info = QVBoxLayout()
         info.setSpacing(1)
         title = QLabel(f"{car['brand']} {car['model']}")
-        title.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        title.setFont(QFont(app_font_family(), 12, QFont.Weight.DemiBold))
         title.setStyleSheet("border: none;")
         info.addWidget(title)
 
@@ -221,7 +229,48 @@ class DashboardPage(QWidget):
         layout.addLayout(info)
         layout.addStretch()
 
+        # Status badge (like web version)
+        repairs = models.get_repairs_for_car(car["id"])
+        status, status_text = self._get_car_status(repairs)
+        badge = QLabel(status_text)
+        if status == "overdue":
+            badge.setStyleSheet("""
+                background: #fef2f2; color: #ef4444;
+                padding: 3px 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 700; border: none;
+            """)
+        elif status == "soon":
+            badge.setStyleSheet("""
+                background: #fffbeb; color: #f59e0b;
+                padding: 3px 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 700; border: none;
+            """)
+        else:
+            badge.setStyleSheet("""
+                background: #ecfdf5; color: #10b981;
+                padding: 3px 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 700; border: none;
+            """)
+        layout.addWidget(badge)
+
         return frame
+
+    def _get_car_status(self, repairs):
+        from datetime import date as dt_date, timedelta
+        today = dt_date.today()
+        for r in repairs:
+            nd = r.get("next_date")
+            if nd:
+                try:
+                    parts = nd.split("-")
+                    nd_date = dt_date(int(parts[0]), int(parts[1]), int(parts[2]))
+                    if nd_date < today:
+                        return ("overdue", "● Просрочено")
+                    if (nd_date - today).days <= 31:
+                        return ("soon", "● Скоро")
+                except (ValueError, IndexError):
+                    pass
+        return ("ok", "● В норме")
 
     def _clear_layout(self, layout):
         while layout.count():

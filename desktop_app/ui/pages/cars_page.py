@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                               QScrollArea, QAbstractItemView, QComboBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database import models
 from desktop_app.ui.dialogs.car_dialog import CarDialog
 from desktop_app.ui.dialogs.confirm_dialog import confirm_delete
@@ -28,7 +29,7 @@ class CarsPage(QWidget):
         header = QHBoxLayout()
         title = QLabel("Автомобили")
         title.setProperty("class", "page-title")
-        title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        title.setFont(QFont(app_font_family(), 22, QFont.Weight.Bold))
         header.addWidget(title)
         header.addStretch()
 
@@ -121,16 +122,29 @@ class CarsPage(QWidget):
             else:
                 self.table.setItem(row, 5, QTableWidgetItem("—"))
 
-            # Status
+            # Status badge (styled widget like web version)
             status = self._get_car_status(repairs)
-            status_item = QTableWidgetItem(status[1])
+            status_widget = QLabel(f"● {status[1]}")
+            status_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
             if status[0] == "overdue":
-                status_item.setForeground(Qt.GlobalColor.red)
+                status_widget.setStyleSheet("""
+                    background: #fef2f2; color: #ef4444;
+                    padding: 4px 12px; border-radius: 12px;
+                    font-size: 11px; font-weight: 700;
+                """)
             elif status[0] == "soon":
-                status_item.setForeground(Qt.GlobalColor.darkYellow)
+                status_widget.setStyleSheet("""
+                    background: #fffbeb; color: #f59e0b;
+                    padding: 4px 12px; border-radius: 12px;
+                    font-size: 11px; font-weight: 700;
+                """)
             else:
-                status_item.setForeground(Qt.GlobalColor.darkGreen)
-            self.table.setItem(row, 6, status_item)
+                status_widget.setStyleSheet("""
+                    background: #ecfdf5; color: #10b981;
+                    padding: 4px 12px; border-radius: 12px;
+                    font-size: 11px; font-weight: 700;
+                """)
+            self.table.setCellWidget(row, 6, status_widget)
 
             # Actions
             actions = QWidget()

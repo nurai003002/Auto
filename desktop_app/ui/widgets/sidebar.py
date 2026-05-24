@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
                               QSizePolicy)
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 
 
 class SidebarButton(QPushButton):
@@ -54,13 +55,13 @@ class Sidebar(QWidget):
         logo_layout.setContentsMargins(8, 0, 8, 16)
 
         logo_icon = QLabel("🚗")
-        logo_icon.setFont(QFont("Segoe UI", 18))
+        logo_icon.setFont(QFont(app_font_family(), 18))
         logo_icon.setStyleSheet("border: none;")
         logo_layout.addWidget(logo_icon)
 
         logo_text = QLabel("AutoTrack")
         logo_text.setObjectName("logoLabel")
-        logo_text.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        logo_text.setFont(QFont(app_font_family(), 16, QFont.Weight.Bold))
         logo_text.setStyleSheet("border: none;")
         logo_layout.addWidget(logo_text)
         logo_layout.addStretch()

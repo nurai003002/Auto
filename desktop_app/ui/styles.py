@@ -36,7 +36,7 @@ def get_stylesheet(theme="light"):
         color: {c['text']};
     }}
     QWidget {{
-        font-family: 'Segoe UI', 'SF Pro Display', -apple-system, sans-serif;
+        font-family: 'Segoe UI', 'SF Pro Display', 'Helvetica Neue', 'Arial', sans-serif;
         font-size: 13px;
         color: {c['text']};
     }}

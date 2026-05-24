@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                               QLineEdit, QPushButton, QFrame, QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+from desktop_app.utils.helpers import app_font_family
 from desktop_app.database.models import authenticate_user
 
 
@@ -36,7 +37,7 @@ class LoginDialog(QDialog):
 
         # Logo
         logo = QLabel("🚗 AutoTrack")
-        logo.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
+        logo.setFont(QFont(app_font_family(), 20, QFont.Weight.Bold))
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         logo.setStyleSheet("color: #1e293b; border: none;")
         layout.addWidget(logo)
