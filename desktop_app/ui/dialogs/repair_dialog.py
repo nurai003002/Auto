@@ -202,9 +202,14 @@ class RepairDialog(QDialog):
             "next_mileage": self.next_mileage_input.value(),
         }
 
-        if self.repair_id:
-            models.update_repair(self.repair_id, **data)
-        else:
-            models.create_repair(**data)
-
-        self.accept()
+        try:
+            if self.repair_id:
+                models.update_repair(self.repair_id, **data)
+            else:
+                # create_repair expects 'repair_date' not 'date'
+                create_data = dict(data)
+                create_data["repair_date"] = create_data.pop("date")
+                models.create_repair(**create_data)
+            self.accept()
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось сохранить:\n{e}")

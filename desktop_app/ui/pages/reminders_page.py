@@ -190,10 +190,8 @@ class RemindersPage(QWidget):
         repair = models.get_repair(repair_id)
         if not repair:
             return
-        dlg = RepairDialog(repair["car_id"], repair_data=repair, parent=self)
+        dlg = RepairDialog(repair_id=repair_id, parent=self)
         if dlg.exec():
-            data = dlg.get_data()
-            models.update_repair(repair_id, **data)
             if self.log_fn:
                 self.log_fn(f"Изменено напоминание: {repair['repair_type']}")
             self.refresh()
