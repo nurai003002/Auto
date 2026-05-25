@@ -148,7 +148,7 @@ class ReportsPage(QWidget):
                 repairs = models.get_repairs_for_car(c["id"])
                 total = sum(r.get("cost", 0) for r in repairs)
                 rows.append([f"{c['brand']} {c['model']}", c["plate"],
-                             str(len(repairs)), f"{total:,.2f} ₸"])
+                             str(len(repairs)), f"{total:,.2f} $"])
             return headers, rows
 
         return [], []

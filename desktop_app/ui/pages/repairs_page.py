@@ -146,7 +146,7 @@ class RepairsPage(QWidget):
                 f"{r.get('mileage_at_repair', 0):,} км".replace(",", " ")
             ))
             self.table.setItem(row, 4, QTableWidgetItem(
-                f"{r.get('cost', 0):,.2f} ₸".replace(",", " ")
+                f"{r.get('cost', 0):,.2f} $".replace(",", " ")
             ))
             self.table.setItem(row, 5, QTableWidgetItem(r.get("responsible", "")))
             self.table.setItem(row, 6, QTableWidgetItem(r.get("next_date") or "—"))

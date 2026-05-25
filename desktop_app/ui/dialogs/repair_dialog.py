@@ -81,7 +81,7 @@ class RepairDialog(QDialog):
         self.cost_input = QDoubleSpinBox()
         self.cost_input.setRange(0, 99999999)
         self.cost_input.setDecimals(2)
-        self.cost_input.setSuffix(" ₸")
+        self.cost_input.setSuffix(" $")
         form.addRow(self._label("Стоимость"), self.cost_input)
 
         # Responsible

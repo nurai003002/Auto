@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
             "dashboard": DashboardPage(),
             "cars": CarsPage(user_role=role, log_fn=log_fn),
             "repairs": RepairsPage(user_role=role, log_fn=log_fn),
-            "reminders": RemindersPage(),
+            "reminders": RemindersPage(user_role=role, log_fn=log_fn),
             "reports": ReportsPage(),
             "settings": SettingsPage(
                 user_role=role,

@@ -3,7 +3,7 @@ AutoTrack — Reminders page.
 """
 from datetime import date
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                              QPushButton, QFrame, QScrollArea)
+                              QPushButton, QFrame, QScrollArea, QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from desktop_app.utils.helpers import app_font_family
@@ -11,8 +11,10 @@ from desktop_app.database import models
 
 
 class RemindersPage(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, user_role="viewer", log_fn=None, parent=None):
         super().__init__(parent)
+        self.user_role = user_role
+        self.log_fn = log_fn
         self.current_filter = "all"
         self._build_ui()
 
@@ -141,7 +143,8 @@ class RemindersPage(QWidget):
             sub_text = f"Гос. номер: {r['plate']} · Через {days} дн."
 
         sub = QLabel(sub_text)
-        sub.setStyleSheet("color: #64748b; font-size: 12px; border: none;")
+        sub.setProperty("class", "report-desc")
+        sub.setStyleSheet("border: none;")
         body.addWidget(sub)
         layout.addLayout(body)
 
@@ -161,4 +164,46 @@ class RemindersPage(QWidget):
             date_lbl.setProperty("reminder_status", status)
             layout.addWidget(date_lbl)
 
+        # Action buttons
+        if self.user_role in ("admin", "operator"):
+            edit_btn = QPushButton("✏️")
+            edit_btn.setToolTip("Редактировать")
+            edit_btn.setFixedSize(32, 32)
+            edit_btn.setProperty("class", "btn-icon")
+            edit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            edit_btn.clicked.connect(lambda _, rid=r["id"]: self._edit_reminder(rid))
+            layout.addWidget(edit_btn)
+
+        if self.user_role == "admin":
+            del_btn = QPushButton("🗑")
+            del_btn.setToolTip("Удалить")
+            del_btn.setFixedSize(32, 32)
+            del_btn.setProperty("class", "btn-icon")
+            del_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            del_btn.clicked.connect(lambda _, rid=r["id"]: self._delete_reminder(rid))
+            layout.addWidget(del_btn)
+
         return frame
+
+    def _edit_reminder(self, repair_id):
+        from desktop_app.ui.dialogs.repair_dialog import RepairDialog
+        repair = models.get_repair(repair_id)
+        if not repair:
+            return
+        dlg = RepairDialog(repair["car_id"], repair_data=repair, parent=self)
+        if dlg.exec():
+            data = dlg.get_data()
+            models.update_repair(repair_id, **data)
+            if self.log_fn:
+                self.log_fn(f"Изменено напоминание: {repair['repair_type']}")
+            self.refresh()
+
+    def _delete_reminder(self, repair_id):
+        from desktop_app.ui.dialogs.confirm_dialog import confirm_delete
+        if confirm_delete(self, text="Удалить это напоминание?"):
+            repair = models.get_repair(repair_id)
+            models.delete_repair(repair_id)
+            if self.log_fn:
+                rtype = repair["repair_type"] if repair else ""
+                self.log_fn(f"Удалено напоминание: {rtype}")
+            self.refresh()

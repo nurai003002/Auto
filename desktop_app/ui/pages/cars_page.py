@@ -227,7 +227,7 @@ class CarsPage(QWidget):
         for i, r in enumerate(repairs):
             tbl.setItem(i, 0, QTableWidgetItem(r["repair_type"]))
             tbl.setItem(i, 1, QTableWidgetItem(r["date"]))
-            tbl.setItem(i, 2, QTableWidgetItem(f"{r.get('cost', 0):,.2f} ₸"))
+            tbl.setItem(i, 2, QTableWidgetItem(f"{r.get('cost', 0):,.2f} $"))
             tbl.setItem(i, 3, QTableWidgetItem(r.get("next_date") or "—"))
             tbl.setItem(i, 4, QTableWidgetItem(r.get("description", "")))
         layout.addWidget(tbl)
