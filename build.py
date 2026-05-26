@@ -17,9 +17,32 @@ def main():
     # Шаг 2: Очистка старой сборки
     print("\n[2/3] Очищаем старую сборку...")
     import shutil
+    import time
+
+    def _on_rm_error(func, path, exc_info):
+        """Handle read-only or locked files on Windows."""
+        import stat
+        os.chmod(path, stat.S_IWRITE)
+        try:
+            func(path)
+        except PermissionError:
+            pass  # Will be retried
+
     for folder in ["build", "dist"]:
         if os.path.exists(folder):
-            shutil.rmtree(folder)
+            for attempt in range(3):
+                try:
+                    shutil.rmtree(folder, onerror=_on_rm_error)
+                    break
+                except PermissionError:
+                    if attempt < 2:
+                        print(f"  ⚠ Файлы заблокированы, попытка {attempt + 2}/3...")
+                        time.sleep(2)
+                    else:
+                        print(f"\n  ❌ ОШИБКА: Не удаётся удалить папку '{folder}'.")
+                        print("  Закройте AutoTrack.exe (Диспетчер задач → Завершить процесс)")
+                        print("  Затем запустите build.py заново.")
+                        sys.exit(1)
     for f in os.listdir("."):
         if f.endswith(".spec"):
             os.remove(f)

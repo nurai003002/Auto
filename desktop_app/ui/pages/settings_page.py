@@ -158,9 +158,12 @@ class SettingsPage(QWidget):
             self, "Экспорт базы данных", "autotrack_export.db", "SQLite (*.db)"
         )
         if path:
-            import shutil
-            shutil.copy2(get_db_path(), path)
-            QMessageBox.information(self, "Успех", f"База экспортирована: {path}")
+            try:
+                import shutil
+                shutil.copy2(get_db_path(), path)
+                QMessageBox.information(self, "Успех", f"База экспортирована:\n{path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Ошибка", f"Не удалось экспортировать:\n{e}")
 
     def _import_db(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -173,10 +176,16 @@ class SettingsPage(QWidget):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.Yes:
-                import shutil
-                create_backup()  # auto backup before import
-                shutil.copy2(path, get_db_path())
-                QMessageBox.information(self, "Успех", "База импортирована. Перезапустите программу.")
+                try:
+                    import shutil
+                    create_backup()  # auto backup before import
+                    # Close active DB connections before overwriting
+                    from desktop_app.database.db import close_all_connections
+                    close_all_connections()
+                    shutil.copy2(path, get_db_path())
+                    QMessageBox.information(self, "Успех", "База импортирована. Перезапустите программу.")
+                except Exception as e:
+                    QMessageBox.critical(self, "Ошибка", f"Не удалось импортировать:\n{e}")
 
     def _add_user(self):
         dlg = QDialog(self)

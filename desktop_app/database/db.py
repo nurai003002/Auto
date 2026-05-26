@@ -41,6 +41,13 @@ def get_connection(db_path=None):
     return conn
 
 
+def close_all_connections():
+    """Force-close any cached SQLite connections.
+    This is needed on Windows before overwriting the DB file."""
+    import gc
+    gc.collect()  # Force garbage collection to release any lingering connections
+
+
 def init_db(db_path=None):
     """Initialize database schema (create tables if they don't exist)."""
     conn = get_connection(db_path)
