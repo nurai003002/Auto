@@ -154,38 +154,142 @@ class SettingsPage(QWidget):
                 QMessageBox.critical(self, "Ошибка", str(e))
 
     def _export_db(self):
+        import os
+        from datetime import datetime
+        from pathlib import Path
+        default_name = f"autotrack_export_{datetime.now().strftime('%Y%m%d')}.db"
+        default_path = str(Path.home() / "Desktop" / default_name)
         path, _ = QFileDialog.getSaveFileName(
-            self, "Экспорт базы данных", "autotrack_export.db", "SQLite (*.db)"
+            self, "Экспорт базы данных", default_path, "SQLite (*.db)"
         )
         if path:
             try:
                 import shutil
+                # Checkpoint WAL into main DB so the exported file is self-contained
+                from desktop_app.database.db import get_connection
+                conn = get_connection()
+                try:
+                    conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                finally:
+                    conn.close()
                 shutil.copy2(get_db_path(), path)
                 QMessageBox.information(self, "Успех", f"База экспортирована:\n{path}")
+                if self.log_fn:
+                    self.log_fn(f"Экспорт базы: {path}")
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Не удалось экспортировать:\n{e}")
 
     def _import_db(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Импорт базы данных", "", "SQLite (*.db *.sqlite3)"
+            self, "Импорт базы данных", str(__import__('pathlib').Path.home() / "Desktop"),
+            "SQLite (*.db *.sqlite3)"
         )
-        if path:
-            reply = QMessageBox.question(
-                self, "Подтверждение",
-                "Текущая база будет заменена. Продолжить?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-            if reply == QMessageBox.StandardButton.Yes:
+        if not path:
+            return
+
+        reply = QMessageBox.question(
+            self, "Подтверждение",
+            "Текущая база будет заменена импортируемой.\n"
+            "Резервная копия текущей базы будет создана автоматически.\n\n"
+            "После импорта программа перезапустится. Продолжить?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        import os
+        import shutil
+        import sys
+        import sqlite3
+        from pathlib import Path
+        from desktop_app.database.db import close_all_connections
+
+        db_path = get_db_path()
+        wal_path = db_path + "-wal"
+        shm_path = db_path + "-shm"
+        safety_path = db_path + ".safety"
+
+        try:
+            # 1. Validate that the file is a real SQLite DB with our schema
+            try:
+                test_conn = sqlite3.connect(path)
+                tables = {r[0] for r in test_conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()}
+                test_conn.close()
+            except sqlite3.DatabaseError:
+                QMessageBox.critical(self, "Ошибка",
+                    "Выбранный файл не является базой данных SQLite.")
+                return
+            required = {"cars", "repairs", "users", "settings"}
+            if not required.issubset(tables):
+                QMessageBox.critical(self, "Ошибка",
+                    "Это не база AutoTrack — отсутствуют необходимые таблицы.")
+                return
+
+            # 2. Auto-backup current DB to Desktop/AutoTrack_Backups
+            create_backup()
+
+            # 3. Safety copy in case shutil.copy2 fails mid-write
+            shutil.copy2(db_path, safety_path)
+
+            # 4. Release any lingering handles, wipe WAL/SHM from the OLD db
+            close_all_connections()
+            for stale in (wal_path, shm_path):
+                if os.path.exists(stale):
+                    try:
+                        os.remove(stale)
+                    except OSError:
+                        pass
+
+            # 5. Overwrite the main DB file
+            try:
+                shutil.copy2(path, db_path)
+            except Exception:
+                # Roll back from safety copy
+                shutil.copy2(safety_path, db_path)
+                raise
+
+            # 6. Cleanup safety copy
+            if os.path.exists(safety_path):
+                os.remove(safety_path)
+
+            if self.log_fn:
+                self.log_fn(f"Импорт базы: {path}")
+
+            QMessageBox.information(self, "Успех",
+                "База успешно импортирована.\nПрограмма перезапустится.")
+
+            # 7. Restart the app so all widgets pick up the new DB cleanly
+            self._restart_app()
+
+        except Exception as e:
+            # If something blew up after we wiped WAL but before copy succeeded,
+            # safety_path holds the original — try to restore it.
+            if os.path.exists(safety_path):
                 try:
-                    import shutil
-                    create_backup()  # auto backup before import
-                    # Close active DB connections before overwriting
-                    from desktop_app.database.db import close_all_connections
-                    close_all_connections()
-                    shutil.copy2(path, get_db_path())
-                    QMessageBox.information(self, "Успех", "База импортирована. Перезапустите программу.")
-                except Exception as e:
-                    QMessageBox.critical(self, "Ошибка", f"Не удалось импортировать:\n{e}")
+                    shutil.copy2(safety_path, db_path)
+                    os.remove(safety_path)
+                except Exception:
+                    pass
+            QMessageBox.critical(self, "Ошибка",
+                f"Не удалось импортировать:\n{e}\n\nТекущая база сохранена.")
+
+    def _restart_app(self):
+        """Relaunch the application — used after DB import."""
+        import sys
+        import os
+        from PyQt6.QtWidgets import QApplication
+        try:
+            if getattr(sys, 'frozen', False):
+                # PyInstaller build: relaunch the executable itself
+                os.execl(sys.executable, sys.executable, *sys.argv[1:])
+            else:
+                # Dev mode: re-run python with original argv
+                os.execl(sys.executable, sys.executable, *sys.argv)
+        except Exception:
+            # Fallback — at least quit cleanly so user can reopen manually
+            QApplication.instance().quit()
 
     def _add_user(self):
         dlg = QDialog(self)

@@ -9,10 +9,15 @@ from desktop_app.database.db import get_db_path
 from desktop_app.database.models import get_setting
 
 
+def get_default_backup_dir() -> str:
+    """Desktop/AutoTrack_Backups — so the user immediately sees the file."""
+    return str(Path.home() / "Desktop" / "AutoTrack_Backups")
+
+
 def get_backup_dir():
     backup_dir = get_setting("backup_dir", "")
     if not backup_dir:
-        backup_dir = str(Path(get_db_path()).parent / "backups")
+        backup_dir = get_default_backup_dir()
     Path(backup_dir).mkdir(parents=True, exist_ok=True)
     return backup_dir
 

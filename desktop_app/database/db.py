@@ -151,7 +151,7 @@ def init_db(db_path=None):
     defaults = {
         "theme": "light",
         "auto_backup": "1",
-        "backup_dir": str(Path(get_db_path()).parent / "backups"),
+        "backup_dir": str(Path.home() / "Desktop" / "AutoTrack_Backups"),
         "reminder_days_warning": "30",
         "reminder_days_critical": "7",
     }
@@ -159,6 +159,17 @@ def init_db(db_path=None):
         cursor.execute(
             "INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)",
             (key, value)
+        )
+
+    # Migrate old backup_dir (data/backups) → Desktop/AutoTrack_Backups
+    old_backup_dir = str(Path(get_db_path()).parent / "backups")
+    row = cursor.execute(
+        "SELECT value FROM settings WHERE key = 'backup_dir'"
+    ).fetchone()
+    if row and row[0] == old_backup_dir:
+        cursor.execute(
+            "UPDATE settings SET value = ? WHERE key = 'backup_dir'",
+            (defaults["backup_dir"],)
         )
 
     conn.commit()
